@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Agent — SML2010 Replay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1317;
+            --panel: #171c22;
+            --panel-alt: #1d242b;
+            --border: #2a323b;
+            --text: #edeae3;
+            --text-dim: #8b949e;
+            --text-faint: #5a6270;
+            --cool: #4fc3d9;
+            --cool-dim: #2c5a63;
+            --warm: #e8935f;
+            --warm-dim: #6b4a33;
+            --danger: #e2626b;
+            --band-fill: rgba(79, 195, 217, 0.07);
+            --mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+            --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                radial-gradient(ellipse at top left, rgba(79, 195, 217, 0.05), transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(232, 147, 95, 0.04), transparent 50%);
+        }
+
+        .wrap {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        /* ---------- header ---------- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: linear-gradient(180deg, var(--panel-alt), var(--panel));
+        }
+
+        .brand {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .brand h1 {
+            font-family: var(--mono);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin: 0;
+            color: var(--text);
+        }
+
+        .brand .sub {
+            font-size: 12px;
+            color: var(--text-dim);
+            font-family: var(--mono);
+            letter-spacing: 0.04em;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-faint);
+        }
+
+        .dot.live {
+            background: var(--cool);
+            box-shadow: 0 0 8px var(--cool);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .dot.off {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ---------- grid ---------- */
+        .grid {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width:860px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--panel);
+            padding: 16px;
+        }
+
+        .panel+.panel {
+            margin-top: 16px;
+        }
+
+        .panel-title {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin: 0 0 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ---------- controls ---------- */
+        .field {
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+            font-family: var(--mono);
+            letter-spacing: 0.03em;
+        }
+
+        .field input[type=text],
+        .field input[type=number] {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--cool);
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        button {
+            font-family: var(--mono);
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 9px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--panel-alt);
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color .15s, color .15s, background .15s;
+        }
+
+        button:hover:not(:disabled) {
+            border-color: var(--cool);
+            color: var(--cool);
+        }
+
+        button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        button.primary {
+            background: var(--cool-dim);
+            border-color: var(--cool);
+            color: #eafcff;
+        }
+
+        button.primary:hover:not(:disabled) {
+            background: var(--cool);
+            color: #04191d;
+        }
+
+        button.wide {
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .btnrow {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btnrow button {
+            flex: 1;
+        }
+
+        select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 8px 10px;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-faint);
+            line-height: 1.5;
+            margin-top: 10px;
+        }
+
+        .hint b {
+            color: var(--text-dim);
+        }
+
+        /* ---------- readout ---------- */
+        .readout {
+            display: flex;
+            align-items: flex-end;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .temp-big {
+            font-family: var(--mono);
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .temp-big .unit {
+            font-size: 24px;
+            color: var(--text-dim);
+            margin-left: 2px;
+        }
+
+        .temp-sub {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        .badge {
+            font-family: var(--mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .badge.on {
+            border-color: var(--cool);
+            color: var(--cool);
+            background: rgba(79, 195, 217, 0.08);
+        }
+
+        .badge.off {
+            border-color: var(--warm-dim);
+            color: var(--warm);
+            background: rgba(232, 147, 95, 0.06);
+        }
+
+        .badge .b-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 26px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            font-family: var(--mono);
+        }
+
+        .stat .k {
+            font-size: 10px;
+            color: var(--text-faint);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .stat .v {
+            font-size: 16px;
+            color: var(--text);
+            margin-top: 3px;
+        }
+
+        .thought {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border-left: 2px solid var(--cool-dim);
+            background: var(--panel-alt);
+            border-radius: 0 6px 6px 0;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* ---------- trace ---------- */
+        .trace-wrap {
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            display: block;
+            border-radius: 6px;
+            background: var(--bg);
+        }
+
+        .legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .legend-swatch {
+            width: 14px;
+            height: 2px;
+            border-radius: 2px;
+        }
+
+        /* ---------- log ---------- */
+        .log {
+            height: 220px;
+            overflow-y: auto;
+            font-family: var(--mono);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .log-row {
+            display: grid;
+            grid-template-columns: 76px 60px 1fr;
+            gap: 10px;
+            padding: 6px 4px;
+            border-bottom: 1px solid var(--border);
+            align-items: baseline;
+        }
+
+        .log-row .lt {
+            color: var(--text-faint);
+        }
+
+        .log-row .la {
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+
+        .log-row .la.on {
+            color: var(--cool);
+        }
+
+        .log-row .la.off {
+            color: var(--warm);
+        }
+
+        .log-row .la.idle {
+            color: var(--text-faint);
+        }
+
+        .log-row .ltxt {
+            color: var(--text-dim);
+        }
+
+        .log::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .empty {
+            color: var(--text-faint);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 20px 4px;
+            text-align: center;
+        }
+
+        .footer-note {
+            margin-top: 16px;
+            font-size: 11px;
+            color: var(--text-faint);
+            font-family: var(--mono);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <header>
+            <div class="brand">
+                <h1>Climate Agent</h1>
+                <span class="sub">SML2010 replay · sense → think → act</span>
+            </div>
+            <div class="status">
+                <span class="dot off" id="statusDot"></span>
+                <span id="statusText">disconnected</span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- LEFT COLUMN -->
+            <div>
+                <div class="panel">
+                    <p class="panel-title">Connection</p>
+                    <div class="field">
+                        <label for="apiBase">API base URL</label>
+                        <input type="text" id="apiBase" value="http://127.0.0.1:8000">
+                    </div>
+                    <button class="wide" id="connectBtn">Connect</button>
+                    <div class="hint" id="connHint"><b>Not connected.</b> Point this at your running FastAPI instance
+                        (<code>uv run fastapi dev app/main.py</code>). Until then, this panel runs on a small built-in
+                        sample so you can preview the UI.</div>
+                </div>
+
+                <div class="panel">
+                    <p class="panel-title">Comfort band</p>
+                    <div class="row2">
+                        <div class="field">
+                            <label for="tmin">tmin °C</label>
+                            <input type="number" id="tmin" value="22" step="0.5">
+                        </div>
+                        <div class="field">
+                            <label for="tmax">tmax °C</label>
+                            <input type="number" id="tmax" value="25" step="0.5">
+                        </div>
+                    </div>
+                    <button class="wide primary" id="newSessionBtn">New session</button>
+                    <div class="hint" id="sessionHint">No active session.</div>
+                </div>
+
+                <div class="panel">
+                    <p class="panel-title">Playback</p>
+                    <div class="btnrow" style="margin-bottom:8px;">
+                        <button id="stepBtn" disabled>Step</button>
+                        <button id="playBtn" disabled>Play</button>
+                    </div>
+                    <div class="btnrow" style="margin-bottom:12px;">
+                        <button id="resetBtn" disabled>Reset</button>
+                    </div>
+                    <div class="field" style="margin-bottom:0;">
+                        <label for="speed">Speed</label>
+                        <select id="speed">
+                            <option value="800">Slow · 800ms/step</option>
+                            <option value="400" selected>Normal · 400ms/step</option>
+                            <option value="150">Fast · 150ms/step</option>
+                            <option value="40">Max · 40ms/step</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div>
+                <div class="panel">
+                    <p class="panel-title">Readout <span id="stepCounter">step 0 / 0</span></p>
+                    <div class="readout">
+                        <div>
+                            <div class="temp-big" id="tempBig">—<span class="unit">°C</span></div>
+                            <div class="temp-sub" id="tempSub">room temperature</div>
+                        </div>
+                        <div class="badge off" id="acBadge"><span class="b-dot"></span><span id="acBadgeText">AC
+                                OFF</span></div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat">
+                            <div class="k">Outdoor</div>
+                            <div class="v" id="outdoorTemp">—</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Comfort band</div>
+                            <div class="v" id="bandVal">22.0 – 25.0 °C</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Timestamp</div>
+                            <div class="v" id="tsVal">—</div>
+                        </div>
+                        <div class="stat">
+                            <div class="k">Last action</div>
+                            <div class="v" id="actionVal">—</div>
+                        </div>
+                    </div>
+                    <div class="thought" id="thoughtBox">Create a session and step through the dataset to see the
+                        agent's reasoning here.</div>
+                </div>
+
+                <div class="panel">
+                    <p class="panel-title">Temperature trace</p>
+                    <div class="trace-wrap">
+                        <canvas id="trace" height="220"></canvas>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item"><span class="legend-swatch" style="background:var(--cool);"></span>room
+                            temp</div>
+                        <div class="legend-item"><span class="legend-swatch"
+                                style="background:var(--warm);opacity:0.7;"></span>outdoor temp</div>
+                        <div class="legend-item"><span class="legend-swatch"
+                                style="background:rgba(79,195,217,0.35);height:8px;"></span>comfort band</div>
+                        <div class="legend-item"><span class="legend-swatch"
+                                style="background:var(--cool);height:8px;opacity:0.5;"></span>AC on interval</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <p class="panel-title">Decision log</p>
+                    <div class="log" id="logFeed">
+                        <div class="empty">No decisions logged yet.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">Falls back to a built-in sample dataset when no API is reachable — connect to your
+            local server for the real SML2010 replay.</div>
+    </div>
+
+    <script>
+        (function () {
+            // ---------- state ----------
+            let apiBase = null;
+            let sessionId = null;
+            let connected = false;
+            let offlineMode = true;
+            let finished = false;
+            let playTimer = null;
+            let history = []; // {index,timestamp,room_temp,outdoor_temp,ac_on,action,thought}
+            let tmin = 22, tmax = 25;
+            let offlineIdx = -1;
+
+            // built-in offline sample: a gentle diurnal curve with a couple of external nudges,
+            // just enough to exercise the AC logic while previewing the UI without a backend.
+            function buildOfflineSample() {
+                const rows = [];
+                const start = new Date('2012-03-13T12:00:00');
+                for (let i = 0; i < 80; i++) {
+                    const t = new Date(start.getTime() + i * 15 * 60000);
+                    const hour = t.getHours() + t.getMinutes() / 60;
+                    const base = 23.2 + 3.1 * Math.sin((hour - 9) / 24 * 2 * Math.PI) + (Math.sin(i / 6) * 0.6);
+                    const outdoor = base - 3.5 + Math.sin(i / 9) * 1.2;
+                    rows.push({timestamp: t.toISOString(), room_temp: +base.toFixed(2), outdoor_temp: +outdoor.toFixed(2)});
+                }
+                return rows;
+            }
+            const offlineData = buildOfflineSample();
+
+            function decide(temp, acOn, lo, hi) {
+                if (temp > hi && !acOn) return {action: 'AC_ON', ac_on: true, thought: `${temp.toFixed(1)}°C exceeds max ${hi.toFixed(1)}°C → cooling required`};
+                if (temp <= lo && acOn) return {action: 'AC_OFF', ac_on: false, thought: `${temp.toFixed(1)}°C reached min ${lo.toFixed(1)}°C → goal achieved`};
+                if (acOn) return {action: 'NO_CHANGE', ac_on: acOn, thought: `${temp.toFixed(1)}°C still above ${lo.toFixed(1)}°C → keep cooling`};
+                if (temp < lo) return {action: 'NO_CHANGE', ac_on: acOn, thought: `${temp.toFixed(1)}°C is below min ${lo.toFixed(1)}°C, but AC is already off → no action needed`};
+                return {action: 'NO_CHANGE', ac_on: acOn, thought: `${temp.toFixed(1)}°C within [${lo.toFixed(1)}, ${hi.toFixed(1)}]°C → comfortable`};
+            }
+
+            // ---------- DOM refs ----------
+            const $ = id => document.getElementById(id);
+            const statusDot = $('statusDot'), statusText = $('statusText');
+            const apiBaseInput = $('apiBase'), connectBtn = $('connectBtn'), connHint = $('connHint');
+            const tminInput = $('tmin'), tmaxInput = $('tmax'), newSessionBtn = $('newSessionBtn'), sessionHint = $('sessionHint');
+            const stepBtn = $('stepBtn'), playBtn = $('playBtn'), resetBtn = $('resetBtn'), speedSel = $('speed');
+            const tempBig = $('tempBig'), tempSub = $('tempSub'), acBadge = $('acBadge'), acBadgeText = $('acBadgeText');
+            const outdoorTemp = $('outdoorTemp'), bandVal = $('bandVal'), tsVal = $('tsVal'), actionVal = $('actionVal');
+            const thoughtBox = $('thoughtBox'), stepCounter = $('stepCounter'), logFeed = $('logFeed');
+            const canvas = $('trace'); const ctx = canvas.getContext('2d');
+
+            function setStatus(mode) {
+                if (mode === 'live') {statusDot.className = 'dot live'; statusText.textContent = 'connected · live';}
+                else if (mode === 'offline') {statusDot.className = 'dot off'; statusText.textContent = 'offline preview';}
+                else {statusDot.className = 'dot off'; statusText.textContent = 'disconnected';}
+            }
+            setStatus('offline');
+
+            async function tryConnect() {
+                const base = apiBaseInput.value.trim().replace(/\/$/, '');
+                connectBtn.disabled = true; connectBtn.textContent = 'Connecting…';
+                try {
+                    const res = await fetch(base + '/health', {method: 'GET'});
+                    if (!res.ok) throw new Error('bad status');
+                    apiBase = base;
+                    connected = true; offlineMode = false;
+                    setStatus('live');
+                    connHint.innerHTML = '<b>Connected.</b> Sessions will replay the real SML2010 dataset from your server.';
+                } catch (err) {
+                    connected = false; offlineMode = true;
+                    setStatus('offline');
+                    connHint.innerHTML = '<b>Could not reach ' + (base || 'that URL') + '.</b> Check the server is running and CORS is enabled. Running the offline sample preview instead.';
+                }
+                connectBtn.disabled = false; connectBtn.textContent = 'Connect';
+            }
+            connectBtn.addEventListener('click', tryConnect);
+
+            async function newSession() {
+                tmin = parseFloat(tminInput.value); tmax = parseFloat(tmaxInput.value);
+                if (isNaN(tmin) || isNaN(tmax) || tmin >= tmax) {
+                    sessionHint.innerHTML = '<b style="color:var(--danger)">tmin must be less than tmax.</b>';
+                    return;
+                }
+                history = []; finished = false;
+                stopPlay();
+                bandVal.textContent = `${tmin.toFixed(1)} – ${tmax.toFixed(1)} °C`;
+                renderLog(); renderTrace();
+
+                if (connected && apiBase) {
+                    try {
+                        const res = await fetch(apiBase + '/sessions', {
+                            method: 'POST', headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({tmin, tmax})
+                        });
+                        if (!res.ok) throw new Error('session create failed');
+                        const data = await res.json();
+                        sessionId = data.session_id;
+                        sessionHint.innerHTML = `<b>Session ready.</b> ${data.total_rows} rows · ${data.dataset_start} → ${data.dataset_end}`;
+                    } catch (err) {
+                        sessionHint.innerHTML = '<b style="color:var(--danger)">Session creation failed.</b> Falling back to offline preview.';
+                        connected = false; offlineMode = true; setStatus('offline');
+                        sessionId = 'offline';
+                        offlineIdx = -1;
+                    }
+                } else {
+                    sessionId = 'offline';
+                    offlineIdx = -1;
+                    sessionHint.innerHTML = `<b>Offline preview session.</b> ${offlineData.length} synthetic rows.`;
+                }
+
+                stepBtn.disabled = false; playBtn.disabled = false; resetBtn.disabled = false;
+                tempBig.innerHTML = '—<span class="unit">°C</span>';
+                tsVal.textContent = '—'; actionVal.textContent = '—'; outdoorTemp.textContent = '—';
+                thoughtBox.textContent = 'Session ready. Step through the dataset to see the agent think.';
+                stepCounter.textContent = `step 0 / ${connected ? '?' : offlineData.length}`;
+                setAcBadge(false);
+            }
+            newSessionBtn.addEventListener('click', newSession);
+
+            function setAcBadge(on) {
+                acBadge.className = 'badge ' + (on ? 'on' : 'off');
+                acBadgeText.textContent = on ? 'AC ON' : 'AC OFF';
+            }
+
+            async function doStep() {
+                if (!sessionId || finished) return;
+
+                if (offlineMode) {
+                    offlineIdx++;
+                    if (offlineIdx >= offlineData.length) {finished = true; stopPlay(); playBtn.disabled = true; stepBtn.disabled = true; return;}
+                    const row = offlineData[offlineIdx];
+                    const prevOn = history.length ? history[history.length - 1].ac_on : false;
+                    const d = decide(row.room_temp, prevOn, tmin, tmax);
+                    const entry = {index: offlineIdx, timestamp: row.timestamp, room_temp: row.room_temp, outdoor_temp: row.outdoor_temp, ac_on: d.ac_on, action: d.action, thought: d.thought};
+                    history.push(entry);
+                    if (offlineIdx >= offlineData.length - 1) {finished = true;}
+                    applyEntry(entry, offlineData.length);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(apiBase + `/sessions/${sessionId}/step`, {method: 'POST'});
+                    if (res.status === 409) {finished = true; stopPlay(); playBtn.disabled = true; stepBtn.disabled = true; return;}
+                    if (!res.ok) throw new Error('step failed');
+                    const entry = await res.json();
+                    history.push(entry);
+                    finished = entry.finished;
+                    applyEntry(entry, null);
+                    if (finished) {stopPlay(); playBtn.disabled = true; stepBtn.disabled = true;}
+                } catch (err) {
+                    thoughtBox.innerHTML = '<b style="color:var(--danger)">Step failed — connection lost.</b>';
+                    stopPlay();
+                }
+            }
+            stepBtn.addEventListener('click', doStep);
+
+            function applyEntry(entry, totalKnown) {
+                tempBig.innerHTML = `${entry.room_temp.toFixed(1)}<span class="unit">°C</span>`;
+                outdoorTemp.textContent = `${entry.outdoor_temp.toFixed(1)} °C`;
+                tsVal.textContent = new Date(entry.timestamp).toLocaleString(undefined, {month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+                actionVal.textContent = entry.action;
+                thoughtBox.textContent = entry.thought;
+                setAcBadge(entry.ac_on);
+                const total = totalKnown || offlineData.length;
+                stepCounter.textContent = `step ${history.length} / ${total}`;
+                pushLog(entry);
+                renderTrace();
+            }
+
+            function pushLog(entry) {
+                if (logFeed.querySelector('.empty')) logFeed.innerHTML = '';
+                const row = document.createElement('div');
+                row.className = 'log-row';
+                const cls = entry.action === 'AC_ON' ? 'on' : (entry.action === 'AC_OFF' ? 'off' : 'idle');
+                const t = new Date(entry.timestamp).toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'});
+                row.innerHTML = `<span class="lt">${t}</span><span class="la ${cls}">${entry.action}</span><span class="ltxt">${entry.thought}</span>`;
+                logFeed.prepend(row);
+            }
+            function renderLog() {logFeed.innerHTML = '<div class="empty">No decisions logged yet.</div>';}
+
+            function stopPlay() {
+                if (playTimer) {clearInterval(playTimer); playTimer = null;}
+                playBtn.textContent = 'Play';
+            }
+            playBtn.addEventListener('click', () => {
+                if (playTimer) {stopPlay(); return;}
+                playBtn.textContent = 'Pause';
+                const speed = parseInt(speedSel.value, 10);
+                playTimer = setInterval(() => {
+                    if (finished) {stopPlay(); return;}
+                    doStep();
+                }, speed);
+            });
+
+            resetBtn.addEventListener('click', async () => {
+                stopPlay();
+                finished = false; history = []; offlineIdx = -1;
+                renderLog(); renderTrace();
+                tempBig.innerHTML = '—<span class="unit">°C</span>';
+                tsVal.textContent = '—'; actionVal.textContent = '—'; outdoorTemp.textContent = '—';
+                thoughtBox.textContent = 'Reset. Step through the dataset again from the start.';
+                stepCounter.textContent = `step 0 / ${offlineData.length}`;
+                setAcBadge(false);
+                stepBtn.disabled = false; playBtn.disabled = false;
+                if (!offlineMode && sessionId && sessionId !== 'offline') {
+                    try {await fetch(apiBase + `/sessions/${sessionId}/reset`, {method: 'POST'});} catch (e) { }
+                }
+            });
+
+            // ---------- canvas trace ----------
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = 220 * dpr;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                renderTrace();
+            }
+            window.addEventListener('resize', resizeCanvas);
+
+            function renderTrace() {
+                const w = canvas.getBoundingClientRect().width;
+                const h = 220;
+                ctx.clearRect(0, 0, w, h);
+
+                const padL = 34, padR = 10, padT = 12, padB = 20;
+                const plotW = w - padL - padR, plotH = h - padT - padB;
+
+                if (history.length === 0) {
+                    ctx.fillStyle = 'rgba(139,148,158,0.5)';
+                    ctx.font = '12px IBM Plex Mono, monospace';
+                    ctx.fillText('no data yet — step to begin', padL, h / 2);
+                    return;
+                }
+
+                const temps = history.flatMap(e => [e.room_temp, e.outdoor_temp]).concat([tmin, tmax]);
+                let yMin = Math.min(...temps) - 1, yMax = Math.max(...temps) + 1;
+                const n = history.length;
+                const xStep = n > 1 ? plotW / (n - 1) : 0;
+                const yToPx = v => padT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+                const xToPx = i => padL + i * xStep;
+
+                // comfort band
+                ctx.fillStyle = 'rgba(79,195,217,0.09)';
+                ctx.fillRect(padL, yToPx(tmax), plotW, yToPx(tmin) - yToPx(tmax));
+                ctx.strokeStyle = 'rgba(79,195,217,0.35)';
+                ctx.setLineDash([3, 3]);
+                ctx.lineWidth = 1;
+                [tmin, tmax].forEach(v => {
+                    ctx.beginPath(); ctx.moveTo(padL, yToPx(v)); ctx.lineTo(padL + plotW, yToPx(v)); ctx.stroke();
+                });
+                ctx.setLineDash([]);
+
+                // AC-on shading along x-axis
+                ctx.fillStyle = 'rgba(79,195,217,0.10)';
+                for (let i = 0; i < n; i++) {
+                    if (history[i].ac_on) {
+                        const x0 = xToPx(i) - xStep / 2, x1 = xToPx(i) + xStep / 2;
+                        ctx.fillRect(Math.max(padL, x0), padT + plotH - 4, x1 - x0, 4);
+                    }
+                }
+
+                // outdoor line
+                ctx.strokeStyle = 'rgba(232,147,95,0.65)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                history.forEach((e, i) => {const x = xToPx(i), y = yToPx(e.outdoor_temp); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);});
+                ctx.stroke();
+
+                // room line
+                ctx.strokeStyle = '#4fc3d9';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                history.forEach((e, i) => {const x = xToPx(i), y = yToPx(e.room_temp); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);});
+                ctx.stroke();
+
+                // last point marker
+                const last = history[n - 1];
+                const lx = xToPx(n - 1), ly = yToPx(last.room_temp);
+                ctx.fillStyle = last.ac_on ? '#4fc3d9' : '#e8935f';
+                ctx.beginPath(); ctx.arc(lx, ly, 3.5, 0, Math.PI * 2); ctx.fill();
+
+                // y-axis labels
+                ctx.fillStyle = 'rgba(139,148,158,0.7)';
+                ctx.font = '10px IBM Plex Mono, monospace';
+                ctx.fillText(yMax.toFixed(0), 4, padT + 4);
+                ctx.fillText(yMin.toFixed(0), 4, padT + plotH);
+            }
+
+            resizeCanvas();
+        })();
+    </script>
+</body>
+
+</html>
