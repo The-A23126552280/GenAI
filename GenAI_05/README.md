@@ -80,12 +80,7 @@ pip install uv
 
 ### 1. Clone or Open the Project Directory
 
-Navigate to your project root folder:
-
-```bash
-cd medical-symptom-checker
-
-```
+Navigate to your project root folder
 
 ### 2. Install Dependencies
 

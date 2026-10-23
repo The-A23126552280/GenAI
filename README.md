@@ -1,115 +1,119 @@
-# AI Rule-Based Symptom Checker
+# GenAI Lab
 
-A lightweight, deterministic AI medical symptom checker built with pure Python. The application uses a forward-chaining rule-based reasoning engine to analyze patient symptoms, infer potential conditions with confidence scores, and recommend next steps via a Streamlit web interface.
+This repository contains a comprehensive list of experiments and case studies for the Generative AI lab, designed to provide practical experience with modern AI technologies, models, and frameworks.
 
-Managed entirely via **`uv`**, eliminating Node/npm dependencies and external API security risks.
+## Course Objectives
 
----
-
-## Key Features
-
-* **Pure Python Stack:** Zero JavaScript/npm build steps or external network dependencies.
-* **Deterministic Inference Engine:** Uses forward-chaining propositional logic over production rules (`IF-THEN`) with confidence scoring.
-* **Session State Memory:** Persists query history across user interactions within the active browser session.
-* **Modern Package Management:** Fast, reproducible virtual environments powered by `uv`.
+- To provide hands-on experience with Generative AI models and tools.
+- To implement LLM-based AI agents and agentic workflows.
+- To develop multi-agent systems capable of reasoning, planning, and tool usage.
+- To build agentic AI applications using modern frameworks and APIs.
 
 ---
 
-## How It Works
+## List of Experiments
 
-```
-┌────────────────────────┐      ┌───────────────────────────┐
-│   Streamlit Web UI     │ ───► │  Inference Engine         │
-│   (app.py)             │      │  (engine.py)              │
-│                        │      │                           │
-│  - User Inputs         │      │  - Evaluates Rules        │
-│  - Session State       │ ◄─── │  - Calculates Confidence  │
-└────────────────────────┘      └───────────────────────────┘
+### Experiment 1
 
-```
+**Implementation of text generation using pre-trained Transformer models (HuggingFace).**
 
-1. **Knowledge Base (`engine.py`):** Defines production rules containing required symptoms, urgency levels, and medical advice.
-2. **Inference Engine (`engine.py`):** Evaluates patient symptoms against rule sets, calculates percentage match confidence, and filters relevant diagnoses.
-3. **Web Interface (`app.py`):** Renders the user dashboard, passes user inputs into the engine, and tracks analysis history using `st.session_state`.
+**Case Study:**  
+A news content generation system where a journalist provides a short headline or topic and the model automatically generates a full news paragraph or article draft. This helps media organizations generate quick content summaries.
 
 ---
 
-## Project Structure
+### Experiment 2
 
-```text
-.
-├── app.py              # Streamlit Web UI and session memory logic
-├── engine.py           # Medical knowledge base and forward-chaining inference engine
-├── pyproject.toml      # Project configuration and dependencies managed by uv
-├── uv.lock             # Deterministic dependency lockfile
-└── README.md           # Documentation
+**Generate synthetic data using Variational Autoencoders (VAE) or GAN models and visualize generated outputs.**
 
-```
+**Case Study:**  
+A medical data augmentation system where GAN models generate synthetic medical images to help train diagnostic models when real patient data is limited.
 
 ---
 
-## Prerequisites
+### Experiment 3
 
-Ensure you have **`uv`** installed on your system. If not, install it via:
+**Design a simple intelligent agent that interacts with an environment and performs goal-based actions.**
 
-* **Linux / macOS:**
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-```
-
-
-* **Windows (PowerShell):**
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-```
-
-
-* **via Pip:**
-```bash
-pip install uv
-
-```
-
-
+**Case Study:**  
+A smart home temperature control agent that monitors room temperature and automatically switches on/off air conditioning to maintain optimal comfort.
 
 ---
 
-## Getting Started
+### Experiment 4
 
-### 1. Clone or Open the Project Directory
+**Implementation of LLM-powered conversational agent using prompt engineering and API integration.**
 
-Navigate to your project root folder
-
-### 2. Install Dependencies
-
-Install Streamlit using `uv` (this creates a managed `.venv` and generates `uv.lock` automatically):
-
-```bash
-uv add streamlit
-
-```
-
-### 3. Run the Application
-
-Start the Streamlit web interface directly through `uv`:
-
-```bash
-uv run streamlit run app.py
-
-```
-
-The application will automatically launch in your browser at `http://localhost:8501`.
+**Case Study:**  
+A college admission chatbot that answers student queries about courses, eligibility, fees, and admission procedures.
 
 ---
 
-## Handy `uv` Commands
+### Experiment 5
 
-| Action | Command |
-| --- | --- |
-| **Run Web App** | `uv run streamlit run app.py` |
-| **Add New Package** | `uv add <package-name>` |
-| **Remove Package** | `uv remove <package-name>` |
-| **Sync Environment** | `uv sync` |
-| **Run Python Script** | `uv run python engine.py` |
+**Develop an AI agent with reasoning capability using knowledge representation and rule-based decision making.**
+
+**Case Study:**  
+A medical symptom checker where the agent uses rule-based logic to suggest possible illnesses based on patient symptoms.
+
+---
+
+### Experiment 6
+
+**Implement an adaptive agent with memory, storing and retrieving conversation context.**
+
+**Case Study:**  
+A personalized learning assistant that remembers student learning preferences and previous questions to provide customized explanations.
+
+---
+
+### Experiment 7
+
+**Create an AI agent that uses external tools (search API, calculator, or database).**
+
+**Case Study:**  
+A financial assistant agent that can calculate loan EMI, retrieve stock prices, and fetch financial information using external APIs.
+
+---
+
+### Experiment 8
+
+**Develop a multi-agent system using frameworks such as CrewAI / AutoGen / LangGraph where agents collaborate to complete a task.**
+
+**Case Study:**  
+A research paper generation system where multiple agents collaborate:
+
+- Research Agent collects information
+- Writer Agent drafts the content
+- Editor Agent reviews and improves the document
+
+---
+
+### Experiment 9
+
+**Design an AI agent workflow with short-term and long-term memory management.**
+
+**Case Study:**  
+A customer support AI system that remembers user history and previous complaints to provide faster and personalized assistance.
+
+---
+
+### Experiment 10
+
+**Build a task automation agent capable of sequential planning and workflow execution.**
+
+**Case Study:**  
+An email automation assistant that reads incoming emails, categorizes them, schedules meetings, and sends automated replies.
+
+---
+
+### Experiment 11 (Mini Project)
+
+**Develop a Multimodal AI Agent capable of handling multiple modalities.**
+
+**Case Study:**  
+A smart classroom assistant that can:
+
+- Understand lecture slides (image)
+- Answer student questions (text)
+- Generate lecture summaries (text output)
