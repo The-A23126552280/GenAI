@@ -1,0 +1,19 @@
+[project]
+name = "financial-assistant"
+version = "0.1.0"
+description = "Experiment 7: financial assistant agent with external tools (Streamlit + Groq)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit>=1.40",
+    "openai>=1.50",
+    "python-dotenv>=1.0",
+    "yfinance>=0.2.40",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-mock>=3"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
