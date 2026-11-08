@@ -1,0 +1,18 @@
+[project]
+name = "learning-assistant"
+version = "0.1.0"
+description = "Experiment 6: adaptive learning assistant with persistent memory (Streamlit + Groq)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit>=1.40",
+    "openai>=1.50",
+    "python-dotenv>=1.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
